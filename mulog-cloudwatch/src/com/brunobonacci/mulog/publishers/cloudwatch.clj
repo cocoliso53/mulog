@@ -112,18 +112,18 @@
    :publish-delay            1000
    ;; function to transform records
    :transform                identity
+   :stream-name              (ut/puid)
    :cloudwatch-client-config {:api :logs}})
 
 
 
 (defn cloudwatch-publisher
-  [{:keys [group-name] :as config}]
+  [{:keys [group-name stream-name] :as config}]
   {:pre [group-name]}
   (let [cfg               (->> config
                             (merge DEFAULT-CONFIG))
         cloudwatch-client (create-cloudwatch-client (:cloudwatch-client-config cfg))
         token             (atom nil)
-        stream-name       (ut/puid)
         rs                (create-log-stream cloudwatch-client group-name stream-name)]
     (if (has-anomaly? rs)
       (throw
